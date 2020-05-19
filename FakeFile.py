@@ -6,18 +6,19 @@ access is prohibited.
 
 
 from io import UnsupportedOperation
+from collections import defaultdict
 
 
 '''Overrides open() to return modified FakeFile object
 
-Relies on two global variables being properly initialized:
-    1) CONTENT (str) - fake file contents
-    2) EXPECTED_FILES (list(str)) - expected names of files in directory
+PRECONDITION:
+    EXISTS global variable:
+        CONTENT (defaultdict{str:str}) - mapping from FakeFile name to content
 '''
 def open(file_name, file_mode="r"):
-    if file_name not in EXPECTED_FILES:
+    if file_mode == "r" and file_name not in CONTENT.keys():
         raise FileNotFoundError("Errno 2] No such file or directory: '" + file_name + "'")
-    return FakeFile(file_name, CONTENT, file_mode)
+    return FakeFile(file_name, CONTENT[file_name], file_mode)
 
 
 ''' FakeFile class
@@ -105,5 +106,4 @@ class FakeFileIterator:
             return nxt
         raise StopIteration
 
-CONTENT = ""
-EXPECTED_FILES = [""]
+CONTENT = defaultdict(lambda: "")
